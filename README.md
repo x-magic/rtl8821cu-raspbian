@@ -1,24 +1,23 @@
 # Realtek RTL8811CU/RTL8821CU USB wifi adapter driver version 5.4.1 for Linux 4.4.x up to 5.x
 
-Before build this driver make sure `make`, `gcc`, `linux-header` and `git` have been installed.
+## -- Modified for Rasbian, tested with 5.4.51-v7+ kernel
 
-## First, clone this repository
+## First, install dependencies
 ```
-mkdir -p ~/build
-cd ~/build
-git clone https://github.com/brektrou/rtl8821CU.git
+sudo apt install build-essentials bc git raspberrypi-kernel-headers linux-headers-rpi
+```
+
+## Then, clone this repository
+```
+cd ~
+git clone https://github.com/x-magic/rtl8821cu-raspbian.git
 ```
 ## Build and install with DKMS
 
 DKMS is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the dkms package.
 
-### Debian/Ubuntu:
 ```
 sudo apt-get install dkms
-```
-### Arch Linux/Manjaro:
-```
-sudo pacman -S dkms
 ```
 To make use of the **DKMS** feature with this project, just run:
 ```
@@ -38,7 +37,7 @@ lsusb
 ```
 2. switch the mode by type: (the device ID must be yours.)
 
-Need install `usb_modeswitch` (Archlinux: `sudo pacman -S usb_modeswitch`)
+Need install `usb_modeswitch`
 ```
 sudo usb_modeswitch -KW -v 0bda -p 1a2b
 systemctl start bluetooth.service - starting Bluetooth service if it's in inactive state
@@ -59,45 +58,15 @@ If steps above worked fine and in order to avoid periodically having to make `us
 2. Append before the end line `LABEL="modeswitch_rules_end"` the following:
 
    ```
-   # Realtek 8211CU Wifi AC USB
-   ATTR{idVendor}=="0bda", ATTR{idProduct}=="1a2b", RUN+="/usr/sbin/usb_modeswitch -K -v 0bda -p 1a2b"
+   # Realtek 8211CU Wifi AC USB (Tenda U9)
+   ATTR{idVendor}=="0bda", ATTR{idProduct}=="1a2b", RUN+="usb_modeswitch '/%k'"
    ```   
 
-## Build and install without DKMS
-Use following commands:
-```
-cd ~/build/rtl8821CU
-make
-sudo make install
-```
-If you later on want to remove it, do the following:
-```
-cd ~/build/rtl8821CU
-sudo make uninstall
-```
-## Checking installed driver
-If you successfully install the driver, the driver is installed on `/lib/modules/<linux version>/kernel/drivers/net/wireless/realtek/rtl8821cu`. Check the driver with the `ls` command:
-```
-ls /lib/modules/$(uname -r)/kernel/drivers/net/wireless/realtek/rtl8821cu
-```
-Make sure `8821cu.ko` file present on that directory
+## Check installed driver with **DKMS** (if installing via **DKMS**):
 
-### Check with **DKMS** (if installing via **DKMS**):
-
-``
-sudo dkms status
-``
-### ARM architecture tweak for this driver (this solves compilation problem of this driver):
 ```
-# For AArch32
-sudo cp /lib/modules/$(uname -r)/build/arch/arm/Makefile /lib/modules/$(uname -r)/build/arch/arm/Makefile.$(date +%Y%m%d%H%M)
-sudo sed -i 's/-msoft-float//' /lib/modules/$(uname -r)/build/arch/arm/Makefile
-sudo ln -s /lib/modules/$(uname -r)/build/arch/arm /lib/modules/$(uname -r)/build/arch/armv7l
-
-# For AArch64
-sudo cp /lib/modules/$(uname -r)/build/arch/arm64/Makefile /lib/modules/$(uname -r)/build/arch/arm64/Makefile.$(date +%Y%m%d%H%M)
-sudo sed -i 's/-mgeneral-regs-only//' /lib/modules/$(uname -r)/build/arch/arm64/Makefile
-
+# sudo dkms status
+rtl8821CU, 5.4.1, 5.4.51-v7+, armv7l: installed
 ```
 ### Monitor mode
 Use the tool 'iw', please don't use other tools like 'airmon-ng'
