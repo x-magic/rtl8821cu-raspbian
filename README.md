@@ -4,7 +4,7 @@
 
 ## First, install dependencies
 ```
-sudo apt install build-essentials bc git raspberrypi-kernel-headers linux-headers-rpi
+sudo apt install build-essential bc git raspberrypi-kernel-headers linux-headers-rpi
 ```
 
 ## Then, clone this repository
